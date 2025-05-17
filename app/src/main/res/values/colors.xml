@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dark_green">#046141</color>
+    <color name="orange">#FBD472</color>
+    <color name="peach">#EC9F6E</color>
+
+    <color name="category_red">#F44336</color>
+    <color name="category_blue">#2196F3</color>
+    <color name="category_green">#4CAF50</color>
+    <color name="category_yellow">#FFEB3B</color>
+    <color name="category_purple">#9C27B0</color>
+    <color name="category_teal">#009688</color>
+
+</resources>
