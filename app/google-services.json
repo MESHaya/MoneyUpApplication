@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "465182332634",
+    "project_id": "moneyupapplication",
+    "storage_bucket": "moneyupapplication.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465182332634:android:f51ff6c76a4484d1a2f7e3",
+        "android_client_info": {
+          "package_name": "com.example.firebase_test_application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCihoVvtMBMTkVfIquBcpS0q3rxcmWp8Jw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

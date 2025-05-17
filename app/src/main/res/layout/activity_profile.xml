@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ProfileActivity">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/profile_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="My Profile"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/dark_green"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- User Info -->
+    <TextView
+        android:id="@+id/user_info"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="user name\user@example.com"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/profile_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
+
+    <!-- Active Budgets Label -->
+    <TextView
+        android:id="@+id/active_budgets_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Active Budgets/Goals"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/dark_green"
+        app:layout_constraintTop_toBottomOf="@id/user_info"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp" />
+
+    <!-- Active Budgets RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/activeBudgetsRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        app:layout_constraintTop_toBottomOf="@id/active_budgets_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:overScrollMode="never"/>
+
+    <!-- Budget History Label -->
+    <TextView
+        android:id="@+id/budget_history_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Budget History"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/dark_green"
+        app:layout_constraintTop_toBottomOf="@id/activeBudgetsRecyclerView"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"/>
+
+    <!-- Budget History RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/budgetHistoryRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        app:layout_constraintTop_toBottomOf="@id/budget_history_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"/>
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

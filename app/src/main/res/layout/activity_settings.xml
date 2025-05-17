@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/settings_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tv_settings_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Settings"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/dark_green"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Scrollable Settings List -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/tv_settings_title"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Edit Profile -->
+            <ImageView
+                android:id="@+id/img_profile"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/user"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_edit_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit Profile"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@id/img_profile"
+                app:layout_constraintBottom_toBottomOf="@id/img_profile"
+                app:layout_constraintStart_toEndOf="@id/img_profile" />
+
+            <!-- Notifications -->
+            <TextView
+                android:id="@+id/tv_notifications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Notifications"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/img_profile"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Switch
+                android:id="@+id/switch_notifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enable Notifications"
+                android:checked="true"
+                app:layout_constraintTop_toBottomOf="@id/tv_notifications"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Currency/Theme Section -->
+            <TextView
+                android:id="@+id/tv_currency_theme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Currency/Theme"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/switch_notifications"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- Change Currency -->
+            <ImageView
+                android:id="@+id/img_currency"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/currencies"
+                app:layout_constraintTop_toBottomOf="@id/tv_currency_theme"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="12dp" />
+
+            <TextView
+                android:id="@+id/tv_currency"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change Currency"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@id/img_currency"
+                app:layout_constraintBottom_toBottomOf="@id/img_currency"
+                app:layout_constraintStart_toEndOf="@id/img_currency" />
+
+            <!-- Dark Mode -->
+            <ImageView
+                android:id="@+id/img_darkmode"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/theme"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/img_currency"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_darkmode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dark Mode"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@id/img_darkmode"
+                app:layout_constraintBottom_toBottomOf="@id/img_darkmode"
+                app:layout_constraintStart_toEndOf="@id/img_darkmode" />
+
+            <!-- Privacy & Security -->
+            <TextView
+                android:id="@+id/tv_privacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Privacy and Security"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/img_darkmode"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/img_password"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/lock"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_privacy"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Change Password"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@id/img_password"
+                app:layout_constraintBottom_toBottomOf="@id/img_password"
+                app:layout_constraintStart_toEndOf="@id/img_password" />
+
+            <!-- About -->
+            <TextView
+                android:id="@+id/tv_about"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="About"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/img_password"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/img_about"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/info"
+                android:layout_marginTop="12dp"
+                app:layout_constraintTop_toBottomOf="@id/tv_about"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_about_app"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="About This App"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@id/img_about"
+                app:layout_constraintBottom_toBottomOf="@id/img_about"
+                app:layout_constraintStart_toEndOf="@id/img_about" />
+
+            <!-- Logout -->
+            <ImageView
+                android:id="@+id/img_logout"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/exit"
+                android:layout_marginTop="24dp"
+                app:layout_constraintTop_toBottomOf="@id/img_about"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:textColor="@android:color/holo_red_dark"
+                android:textStyle="bold"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="@id/img_logout"
+                app:layout_constraintBottom_toBottomOf="@id/img_logout"
+                app:layout_constraintStart_toEndOf="@id/img_logout" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:menu="@menu/bottom_nav_menu"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

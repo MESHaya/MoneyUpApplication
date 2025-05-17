@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".BudgetActivity">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/tv_budget_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Set Budget/Monthly Goal"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/dark_green"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <!-- Budget Name -->
+    <TextView
+        android:id="@+id/tv_budget_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goal"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/tv_budget_title"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <EditText
+        android:id="@+id/et_budget_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="e.g. January 2025 Budget"
+        android:backgroundTint="@color/dark_green"
+        android:inputType="textCapWords"
+        app:layout_constraintTop_toBottomOf="@id/tv_budget_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Minimum Budget -->
+    <TextView
+        android:id="@+id/tv_min_budget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Minimum Monthly Spending (R)"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/et_budget_name"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <EditText
+        android:id="@+id/et_min_budget"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="e.g. 1000"
+        android:inputType="numberDecimal"
+        android:backgroundTint="@color/dark_green"
+        app:layout_constraintTop_toBottomOf="@id/tv_min_budget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Maximum Budget -->
+    <TextView
+        android:id="@+id/tv_max_budget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Maximum Monthly Spending (R)"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/et_min_budget"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <EditText
+        android:id="@+id/et_max_budget"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="e.g. 3000"
+        android:inputType="numberDecimal"
+        android:backgroundTint="@color/dark_green"
+        app:layout_constraintTop_toBottomOf="@id/tv_max_budget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Save Budget Button -->
+    <Button
+        android:id="@+id/btn_save_budget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save Budget"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/orange"
+        app:layout_constraintTop_toBottomOf="@id/et_max_budget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Divider -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/dark_green"
+        app:layout_constraintTop_toBottomOf="@id/btn_save_budget"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
+    <!-- Optional: RecyclerView to show previous goals -->
+    <TextView
+        android:id="@+id/tv_previous_goals"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Previous Goals/Budget"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/divider"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_budget_history"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_previous_goals"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/bottom_nav_menu"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

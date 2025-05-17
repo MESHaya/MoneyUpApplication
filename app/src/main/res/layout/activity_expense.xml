@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="24dp">
+
+        <!-- Back Button -->
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/baseline_arrow_back_24"
+            android:contentDescription="Back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_margin="16dp" />
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/expenseTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Add New Expense"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/back_button"
+            app:layout_constraintTop_toTopOf="@id/back_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp" />
+
+        <!-- Expense Name -->
+        <EditText
+            android:id="@+id/et_expense_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="16dp"
+            android:hint="Expense Name"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
+            app:layout_constraintTop_toBottomOf="@id/back_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Date -->
+        <EditText
+            android:id="@+id/et_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:hint="Select Date"
+            android:inputType="date"
+            android:minHeight="48dp"
+            app:layout_constraintTop_toBottomOf="@id/et_expense_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Start Time -->
+        <EditText
+            android:id="@+id/et_start_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:hint="Start Time"
+            android:inputType="time"
+            app:layout_constraintTop_toBottomOf="@id/et_date"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- End Time -->
+        <EditText
+            android:id="@+id/et_end_time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:hint="End Time"
+            android:inputType="time"
+            app:layout_constraintTop_toBottomOf="@id/et_start_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Amount -->
+        <EditText
+            android:id="@+id/et_amount"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:hint="Amount"
+            android:inputType="numberDecimal"
+            android:minHeight="48dp"
+            app:layout_constraintTop_toBottomOf="@id/et_end_time"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Description -->
+        <EditText
+            android:id="@+id/et_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:hint="Description"
+            android:inputType="textMultiLine"
+            android:minHeight="48dp"
+            app:layout_constraintTop_toBottomOf="@id/et_amount"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Category Spinner -->
+        <Spinner
+            android:id="@+id/spinner_category"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:minHeight="48dp"
+            android:background="#FBAA6F"
+            app:layout_constraintTop_toBottomOf="@id/et_description"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Square Image Preview -->
+        <ImageView
+            android:id="@+id/photo_preview"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:scaleType="centerCrop"
+            android:layout_marginTop="24dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/spinner_category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/preview_view" />
+
+        <!-- CameraX PreviewView -->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/preview_view"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/spinner_category"
+            app:layout_constraintStart_toEndOf="@id/photo_preview"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Upload Photo Button -->
+        <Button
+            android:id="@+id/upload_photo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Upload Photo"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@id/photo_preview"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.25" />
+
+        <!-- Take Photo Button -->
+        <Button
+            android:id="@+id/take_photo_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Take Photo"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@id/photo_preview"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.75" />
+
+        <!-- Save Expense Button -->
+        <Button
+            android:id="@+id/btn_save_expense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Save Expense"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/orange"
+            android:textAllCaps="false"
+            android:elevation="4dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="24dp"
+            app:layout_constraintTop_toBottomOf="@id/upload_photo_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

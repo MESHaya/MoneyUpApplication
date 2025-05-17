@@ -1,0 +1,79 @@
+package com.example.firebase_test_application
+
+import android.app.ActivityOptions
+import android.content.Intent
+import android.os.Bundle
+import android.widget.Button
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+
+class HomepageActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(R.layout.activity_homepage)
+
+        //declare ui elements
+        val add_expenseBTN = findViewById<Button>(R.id.add_expenseBTN)
+
+        val add_categoryBTN = findViewById<Button>(R.id.btn_add_categoryBTN)
+
+
+
+
+// Add expense button functionality
+        add_expenseBTN.setOnClickListener {
+            val intent = Intent(this, ExpenseActivity::class.java)
+            val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
+            startActivity(intent, options.toBundle())
+        }
+
+        //add category button functionality
+        add_categoryBTN.setOnClickListener {
+            val intent = Intent(this, CategoryActivity::class.java)
+            val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
+            startActivity(intent, options.toBundle())
+        }
+
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
+        bottomNav.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.nav_home -> true
+                R.id.nav_expenses-> {
+                    val intent = Intent(this, AllExpensesActivity::class.java)
+                    val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
+                    startActivity(intent, options.toBundle())
+                    true
+                }
+                R.id.nav_budget -> {
+                    val intent = Intent(this, BudgetActivity::class.java)
+                    val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
+                    startActivity(intent, options.toBundle())
+                    true
+                }
+                R.id.nav_profile -> {
+                    val intent = Intent(this, ProfileActivity::class.java)
+                    val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
+                    startActivity(intent, options.toBundle())
+                    true
+                }
+                R.id.nav_settings -> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
+                    startActivity(intent, options.toBundle())
+                    true
+                }
+                else -> false
+            }
+        }
+
+        // Highlight current tab
+        bottomNav.selectedItemId = R.id.nav_home
+    }
+}
