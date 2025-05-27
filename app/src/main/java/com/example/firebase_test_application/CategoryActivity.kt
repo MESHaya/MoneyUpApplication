@@ -20,6 +20,7 @@ class CategoryActivity : AppCompatActivity() {
     private lateinit var colorSpinner: Spinner
     private lateinit var iconSpinner: Spinner
     private lateinit var addCategoryButton: Button
+    //test
 
     private lateinit var database: DatabaseReference // Firebase DB reference
 
