@@ -4,10 +4,12 @@ import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.calculatoractivity.CalculatorActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -23,7 +25,7 @@ class HomepageActivity : AppCompatActivity() {
 
         val add_categoryBTN = findViewById<Button>(R.id.btn_add_categoryBTN)
 
-
+        val calcIcon = findViewById<ImageView>(R.id.calc_icon)
 
 
 // Add expense button functionality
@@ -34,8 +36,16 @@ class HomepageActivity : AppCompatActivity() {
         }
 
         //add category button functionality
+        //when users click on icon they are taken to the Calculator Page
         add_categoryBTN.setOnClickListener {
             val intent = Intent(this, CategoryActivity::class.java)
+            val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
+            startActivity(intent, options.toBundle())
+        }
+
+        //add calc functionality
+        calcIcon.setOnClickListener {
+            val intent = Intent(this, CalculatorActivity::class.java)
             val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
             startActivity(intent, options.toBundle())
         }
