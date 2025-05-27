@@ -64,7 +64,7 @@ class HomepageActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_settings -> {
-                    val intent = Intent(this, SettingsActivity::class.java)
+                    val intent = Intent(this, SettingActivity::class.java)
                     val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
                     startActivity(intent, options.toBundle())
                     true
