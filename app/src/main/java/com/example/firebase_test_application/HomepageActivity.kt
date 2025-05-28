@@ -3,8 +3,10 @@ package com.example.firebase_test_application
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -49,6 +51,17 @@ class HomepageActivity : AppCompatActivity() {
             val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
             startActivity(intent, options.toBundle())
         }
+
+        //set up spinner for month selection from user
+        val spinnerMonth = findViewById<Spinner>(R.id.spinner_month)
+        val months = listOf("January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        )
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, months)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerMonth.adapter = adapter
+
+        //line graph set up
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
