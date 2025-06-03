@@ -120,19 +120,16 @@ class ExpenseActivity : AppCompatActivity() {
             val expenseId = database.push().key ?: UUID.randomUUID().toString()
 
 
-            val userId = "default_user"
-
-
-            if (userId == null) {
+            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            if (uid == null) {
                 Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
 
-
             val expense = Expense(
                 expenseId = expenseId,
-                user_id = "default_user",
+                user_id = uid,
                 expenseName = expenseName,
                 date = date,
                 startTime = startTime,

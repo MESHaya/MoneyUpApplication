@@ -84,122 +84,151 @@ class AllExpensesActivity : AppCompatActivity() {
     }
 
     private fun loadExpenses() {
-        val uid = auth.currentUser?.uid ?: run {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
-            return
-        }
+        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val expensesRef = FirebaseDatabase.getInstance().getReference("expenses")
 
-        val userExpensesRef = dbRef.child("expenses").child(uid)
+        expensesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val expensesList = mutableListOf<Expense>()
 
-        lifecycleScope.launch {
-            userExpensesRef.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    expensesList.clear()
-                    for (expenseSnap in snapshot.children) {
-                        val expense = expenseSnap.getValue(Expense::class.java)
+                for (expenseSnap in snapshot.children) {
+                    val expense = expenseSnap.getValue(Expense::class.java)
+                    if (expense != null && expense.user_id == uid) {
+                        expensesList.add(expense)
+                    }
+                }
+
+                // Assuming you have an adapter:
+                expenseAdapter.submitList(expensesList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("AllExpensesActivity", "Database read failed: ${error.message}")
+            }
+        })
+    }
+
+
+
+        private fun loadCategoryTotals() {
+            val uid = auth.currentUser?.uid ?: return
+
+            lifecycleScope.launch {
+                val categoryMap = mutableMapOf<String, Double>()
+                val expensesRef = dbRef.child("expenses").child(uid)
+                expensesRef.get().addOnSuccessListener { snapshot ->
+                    Log.d(
+                        "AllExpensesActivity",
+                        "Category totals snapshot children count: ${snapshot.childrenCount}"
+                    )
+                    for (child in snapshot.children) {
+                        val expense = child.getValue(Expense::class.java)
+                        Log.d("AllExpensesActivity", "Expense for category totals: $expense")
                         if (expense != null) {
-                            if (startDate == null || endDate == null || isWithinSelectedRange(expense.date)) {
-                                expensesList.add(expense)
-                            }
+                            categoryMap[expense.category] =
+                                categoryMap.getOrDefault(expense.category, 0.0) + expense.amount
                         }
                     }
-                    expenseAdapter.submitList(expensesList.toList())
+                    val categoryTotals = categoryMap.map { CategoryNameTotal(it.key, it.value) }
+                    categoryTotalsAdapter.setData(categoryTotals)
+                }.addOnFailureListener {
+                    Toast.makeText(
+                        this@AllExpensesActivity,
+                        "Failed to load category totals",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e("AllExpensesActivity", "Failed to load categories", it)
                 }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(this@AllExpensesActivity, "Failed to load expenses", Toast.LENGTH_SHORT).show()
-                }
-            })
+            }
         }
-    }
 
-    private fun loadCategoryTotals() {
-        val uid = auth.currentUser?.uid ?: return
 
-        lifecycleScope.launch {
-            val categoryMap = mutableMapOf<String, Double>()
-            val expensesRef = dbRef.child("expenses").child(uid)
-
-            expensesRef.get().addOnSuccessListener { snapshot ->
-                for (child in snapshot.children) {
-                    val expense = child.getValue(Expense::class.java)
-                    if (expense != null && (startDate == null || endDate == null || isWithinSelectedRange(expense.date))) {
-                        categoryMap[expense.category] =
-                            categoryMap.getOrDefault(expense.category, 0.0) + expense.amount
+        private fun openDateRangePicker() {
+            val calendar = Calendar.getInstance()
+            DatePickerDialog(
+                this,
+                { _, year, month, dayOfMonth ->
+                    val pickedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
+                    if (startDate == null) {
+                        startDate = pickedDate
+                        Toast.makeText(this, "Start Date Selected: $startDate", Toast.LENGTH_SHORT)
+                            .show()
+                    } else {
+                        endDate = pickedDate
+                        Toast.makeText(
+                            this,
+                            "End Date Selected: $startDate to $endDate",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
+                },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
+        private fun clearFilters() {
+            startDate = null
+            endDate = null
+            Toast.makeText(this, "Filters cleared", Toast.LENGTH_SHORT).show()
+        }
+
+        private fun isWithinSelectedRange(dateString: String): Boolean {
+            if (startDate == null && endDate == null) return true
+            val date = dateFormatter.parse(dateString) ?: return false
+            val start = dateFormatter.parse(startDate!!) ?: return false
+            val end = dateFormatter.parse(endDate!!) ?: return false
+            return (date == start || date == end || (date.after(start) && date.before(end)))
+        }
+
+        private fun setupBottomNavigation() {
+            binding.bottomNavigation.selectedItemId = R.id.nav_expenses
+
+            binding.bottomNavigation.setOnItemSelectedListener {
+                when (it.itemId) {
+                    R.id.nav_home -> {
+                        startActivity(
+                            Intent(this, HomepageActivity::class.java),
+                            ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
+                        )
+                        true
+                    }
+
+                    R.id.nav_budget -> {
+                        startActivity(
+                            Intent(this, BudgetActivity::class.java),
+                            ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
+                        )
+                        true
+                    }
+
+                    R.id.nav_profile -> {
+                        startActivity(
+                            Intent(this, ProfileActivity::class.java),
+                            ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
+                        )
+                        true
+                    }
+
+                    R.id.nav_settings -> {
+                        startActivity(
+                            Intent(this, SettingActivity::class.java),
+                            ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
+                        )
+                        true
+                    }
+
+                    else -> false
                 }
-
-                val categoryTotals = categoryMap.map { CategoryNameTotal(it.key, it.value) }
-                categoryTotalsAdapter.setData(categoryTotals)
-
-            }.addOnFailureListener {
-                Toast.makeText(this@AllExpensesActivity, "Failed to load category totals", Toast.LENGTH_SHORT).show()
-                Log.e("Firebase", "Error loading categories", it)
             }
+        }
+
+        override fun onResume() {
+            super.onResume()
+            loadExpenses()
+            loadCategoryTotals()
         }
     }
 
-    private fun openDateRangePicker() {
-        val calendar = Calendar.getInstance()
-        DatePickerDialog(this, { _, year, month, dayOfMonth ->
-            val pickedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth)
-            if (startDate == null) {
-                startDate = pickedDate
-                Toast.makeText(this, "Start Date Selected: $startDate", Toast.LENGTH_SHORT).show()
-            } else {
-                endDate = pickedDate
-                Toast.makeText(this, "End Date Selected: $startDate to $endDate", Toast.LENGTH_SHORT).show()
-            }
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
-    }
-
-    private fun clearFilters() {
-        startDate = null
-        endDate = null
-        Toast.makeText(this, "Filters cleared", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun isWithinSelectedRange(dateString: String): Boolean {
-        if (startDate == null && endDate == null) return true
-        val date = dateFormatter.parse(dateString) ?: return false
-        val start = dateFormatter.parse(startDate!!) ?: return false
-        val end = dateFormatter.parse(endDate!!) ?: return false
-        return (date == start || date == end || (date.after(start) && date.before(end)))
-    }
-
-    private fun setupBottomNavigation() {
-        binding.bottomNavigation.selectedItemId = R.id.nav_expenses
-
-        binding.bottomNavigation.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_home -> {
-                    startActivity(Intent(this, HomepageActivity::class.java),
-                        ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
-                    true
-                }
-                R.id.nav_budget -> {
-                    startActivity(Intent(this, BudgetActivity::class.java),
-                        ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
-                    true
-                }
-                R.id.nav_profile -> {
-                    startActivity(Intent(this, ProfileActivity::class.java),
-                        ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
-                    true
-                }
-                R.id.nav_settings -> {
-                    startActivity(Intent(this, SettingActivity::class.java),
-                        ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle())
-                    true
-                }
-                else -> false
-            }
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        loadExpenses()
-        loadCategoryTotals()
-    }
-}
