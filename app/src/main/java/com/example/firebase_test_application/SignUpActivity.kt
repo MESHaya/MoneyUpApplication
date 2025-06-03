@@ -6,20 +6,22 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import java.util.*
 
 class SignUpActivity : AppCompatActivity() {
 
-    // Reference to the "users" node in Firebase Realtime Database
+
     private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() // Optional: makes app content extend into system bars
-        setContentView(R.layout.activity_sign_yp) // Ensure layout file name is correct!
-
+        setContentView(R.layout.activity_sign_yp)
         // Get references to UI elements
         val nameInput = findViewById<EditText>(R.id.name_edit)
         val surnameInput = findViewById<EditText>(R.id.surname_edit)
@@ -29,8 +31,8 @@ class SignUpActivity : AppCompatActivity() {
         val confirmPasswordInput = findViewById<EditText>(R.id.confirm_password_edit)
         val signUpButton = findViewById<Button>(R.id.sign_up_button)
 
-        // Initialize Firebase database reference pointing to "users" node
-        database = FirebaseDatabase.getInstance().getReference("users")
+        auth = FirebaseAuth.getInstance()
+
 
         // Handle Sign Up button click
         signUpButton.setOnClickListener {
@@ -61,27 +63,31 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Create a unique ID for the user (you could also use push() to let Firebase auto-generate it)
-            val userId = UUID.randomUUID().toString()
+            //  Firebase Authentication - create user
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val userId = auth.currentUser?.uid ?: UUID.randomUUID().toString()
+                        val userData = Users(
+                            user_id = userId,
+                            username = username,
+                            password = password,
+                            email = email,
+                            name = name,
+                            surname = surname
+                        )
 
-            // Create a user object
-            val userData = Users(
-                user_id = userId,
-                username = username,
-                password = password,
-                email = email,
-                name = name,
-                surname = surname
-            )
-
-            // Save the user data to Firebase under the unique userId
-            database.child(userId).setValue(userData)
-                .addOnSuccessListener {
-                    Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
-                    // Optionally: redirect to login screen here
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to create account: ${it.message}", Toast.LENGTH_SHORT).show()
+                        //  Save user data to Realtime Database
+                        database.child(userId).setValue(userData)
+                            .addOnSuccessListener {
+                                Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(this, "Failed to save user data: ${it.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    } else {
+                        Toast.makeText(this, "Authentication failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                    }
                 }
         }
     }

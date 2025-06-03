@@ -11,15 +11,12 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-
-
-
 class ExpenseAdapter : ListAdapter<Expense, ExpenseAdapter.ExpenseViewHolder>(DIFF_CALLBACK) {
 
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Expense>() {
             override fun areItemsTheSame(oldItem: Expense, newItem: Expense): Boolean {
-                return oldItem.expenseId == newItem.expenseId
+                return oldItem.expenseId == newItem.expenseId  
             }
 
             override fun areContentsTheSame(oldItem: Expense, newItem: Expense): Boolean {
@@ -27,7 +24,6 @@ class ExpenseAdapter : ListAdapter<Expense, ExpenseAdapter.ExpenseViewHolder>(DI
             }
         }
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExpenseViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -48,13 +44,11 @@ class ExpenseAdapter : ListAdapter<Expense, ExpenseAdapter.ExpenseViewHolder>(DI
         if (!expense.imageUrl.isNullOrEmpty()) {
             Glide.with(holder.itemView.context)
                 .load(Uri.parse(expense.imageUrl))
-                .placeholder(R.drawable.placeholder) // Add this image to your drawable folder
-                .error(R.drawable.error) // Also optional
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.error)
                 .into(holder.expenseImageView)
         } else {
             holder.expenseImageView.setImageResource(R.drawable.placeholder)
         }
     }
 }
-
-

@@ -5,12 +5,11 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import com.example.firebase_test_application.databinding.ActivityAllExpensesBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -21,15 +20,15 @@ import java.util.*
 
 class AllExpensesActivity : AppCompatActivity() {
 
-    private lateinit var pickDateButton: Button
-    private lateinit var applyFilterButton: Button
-    private lateinit var clearFiltersButton: Button
-    private lateinit var expensesRecyclerView: RecyclerView
-    private lateinit var expenseAdapter: ExpenseAdapter
-    private lateinit var categoryTotalsAdapter: CategoryTotalsAdapter
+    private lateinit var binding: ActivityAllExpensesBinding
 
     private lateinit var auth: FirebaseAuth
     private lateinit var dbRef: DatabaseReference
+
+    private lateinit var expenseAdapter: ExpenseAdapter
+    private lateinit var categoryTotalsAdapter: CategoryTotalsAdapter
+
+    private var expensesList = mutableListOf<Expense>()
 
     private var startDate: String? = null
     private var endDate: String? = null
@@ -38,87 +37,83 @@ class AllExpensesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_all_expenses)
+        binding = ActivityAllExpensesBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Firebase
         auth = FirebaseAuth.getInstance()
+
         dbRef = FirebaseDatabase.getInstance().reference
 
-        // UI setup
-        pickDateButton = findViewById(R.id.btn_pick_date)
-        applyFilterButton = findViewById(R.id.btn_filter)
-        clearFiltersButton = findViewById(R.id.clear_filters_button)
-        expensesRecyclerView = findViewById(R.id.recycler_expenses)
-        val addExpenseButton = findViewById<Button>(R.id.add_expenseBTN)
+        setupRecyclerView()
+        setupCategoryTotals()
+        setupButtons()
+        setupBottomNavigation()
 
-        // Expense list
+        //loadExpenses()
+        //loadCategoryTotals()
+    }
+
+    private fun setupRecyclerView() {
         expenseAdapter = ExpenseAdapter()
-        expensesRecyclerView.layoutManager = LinearLayoutManager(this)
-        expensesRecyclerView.adapter = expenseAdapter
+        binding.recyclerExpenses.layoutManager = LinearLayoutManager(this)
+        binding.recyclerExpenses.adapter = expenseAdapter
+    }
 
-        // Category totals
+    private fun setupCategoryTotals() {
         categoryTotalsAdapter = CategoryTotalsAdapter()
-        val categoryTotalsRecyclerView = findViewById<RecyclerView>(R.id.recycler_category_totals)
-        categoryTotalsRecyclerView.layoutManager = LinearLayoutManager(this)
-        categoryTotalsRecyclerView.adapter = categoryTotalsAdapter
+        binding.recyclerCategoryTotals.layoutManager = LinearLayoutManager(this)
+        binding.recyclerCategoryTotals.adapter = categoryTotalsAdapter
+    }
 
-        // Button Listeners
-        pickDateButton.setOnClickListener { openDateRangePicker() }
-        applyFilterButton.setOnClickListener {
+    private fun setupButtons() {
+        binding.btnPickDate.setOnClickListener { openDateRangePicker() }
+        binding.btnFilter.setOnClickListener {
             loadExpenses()
             loadCategoryTotals()
         }
-        clearFiltersButton.setOnClickListener {
+        binding.clearFiltersButton.setOnClickListener {
             clearFilters()
             loadExpenses()
             loadCategoryTotals()
         }
-        addExpenseButton.setOnClickListener {
+        binding.addExpenseBTN.setOnClickListener {
             val intent = Intent(this, ExpenseActivity::class.java)
             val options = ActivityOptions.makeCustomAnimation(this, 0, 0)
             startActivity(intent, options.toBundle())
         }
-
-        setupBottomNavigation()
     }
 
     private fun loadExpenses() {
-        val uid = auth.currentUser?.uid ?: return
+        val uid = auth.currentUser?.uid ?: run {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val userExpensesRef = dbRef.child("expenses").child(uid)
 
         lifecycleScope.launch {
-            val expenses = mutableListOf<Expense>()
-            val expensesRef = dbRef.child("expenses").child(uid)
-
-
-            expensesRef.get().addOnSuccessListener { snapshot ->
-                Log.d("Expenses", "Snapshot has ${snapshot.childrenCount} items")
-                if (!snapshot.exists()) {
-                    Log.d("Expenses", "No expenses found in the database")
-                }
-                for (child in snapshot.children) {
-                    Log.d("Child", child.toString())
-                    val expense = child.getValue(Expense::class.java)
-                    if (expense != null) {
-                        Log.d("Parsed Expense", expense.toString())
-                        expenses.add(expense)
-                    } else {
-                        Log.d("Expense", "Null after parsing")
+            userExpensesRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    expensesList.clear()
+                    for (expenseSnap in snapshot.children) {
+                        val expense = expenseSnap.getValue(Expense::class.java)
+                        if (expense != null) {
+                            if (startDate == null || endDate == null || isWithinSelectedRange(expense.date)) {
+                                expensesList.add(expense)
+                            }
+                        }
                     }
+                    expenseAdapter.submitList(expensesList.toList())
                 }
-                Log.d("Expenses", "Total expenses parsed: ${expenses.size}")
-                expenseAdapter.submitList(expenses)
-            }.addOnFailureListener {
-                Toast.makeText(
-                    this@AllExpensesActivity,
-                    "Failed to load expenses",
-                    Toast.LENGTH_SHORT
-                ).show()
-                Log.e("Firebase", "Error loading expenses", it)
-            }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@AllExpensesActivity, "Failed to load expenses", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
     }
 
-            private fun loadCategoryTotals() {
+    private fun loadCategoryTotals() {
         val uid = auth.currentUser?.uid ?: return
 
         lifecycleScope.launch {
@@ -129,12 +124,12 @@ class AllExpensesActivity : AppCompatActivity() {
                 for (child in snapshot.children) {
                     val expense = child.getValue(Expense::class.java)
                     if (expense != null && (startDate == null || endDate == null || isWithinSelectedRange(expense.date))) {
-                        categoryMap[expense.category] = categoryMap.getOrDefault(expense.category, 0.0) + expense.amount
+                        categoryMap[expense.category] =
+                            categoryMap.getOrDefault(expense.category, 0.0) + expense.amount
                     }
                 }
 
                 val categoryTotals = categoryMap.map { CategoryNameTotal(it.key, it.value) }
-
                 categoryTotalsAdapter.setData(categoryTotals)
 
             }.addOnFailureListener {
@@ -173,10 +168,9 @@ class AllExpensesActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.selectedItemId = R.id.nav_expenses
+        binding.bottomNavigation.selectedItemId = R.id.nav_expenses
 
-        bottomNav.setOnItemSelectedListener {
+        binding.bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_home -> {
                     startActivity(Intent(this, HomepageActivity::class.java),
