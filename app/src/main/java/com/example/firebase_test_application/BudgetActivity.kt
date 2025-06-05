@@ -43,7 +43,7 @@ class BudgetActivity : AppCompatActivity() {
             saveBudget()
         }
 
-        // Example call to test the progress bar (replace 1200.0 with actual spending from DB later)
+
         setBudgetProgress(currentSpending = 1200.0, min = 1000.0, max = 3000.0)
 
         setupBottomNav()

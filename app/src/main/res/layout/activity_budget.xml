@@ -38,9 +38,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:backgroundTint="@color/dark_green"
+        android:background="@drawable/edittext_background"
         android:hint="e.g. January 2025 Budget"
         android:inputType="textCapWords"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_budget_name" />
@@ -62,9 +63,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:backgroundTint="@color/dark_green"
+        android:background="@drawable/edittext_background"
         android:hint="e.g. 1000"
         android:inputType="numberDecimal"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_min_budget" />
@@ -86,9 +88,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:backgroundTint="@color/dark_green"
+        android:background="@drawable/edittext_background"
         android:hint="e.g. 3000"
         android:inputType="numberDecimal"
+        android:padding="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_max_budget" />
@@ -107,8 +110,6 @@
         app:layout_constraintTop_toBottomOf="@id/et_max_budget" />
 
     <!-- Divider -->
-    <!-- Budget Progress -->
-
     <View
         android:id="@+id/divider"
         android:layout_width="0dp"
@@ -116,10 +117,10 @@
         android:layout_marginTop="64dp"
         android:background="@color/dark_green"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btn_save_budget" />
 
+    <!-- Budget Progress -->
     <TextView
         android:id="@+id/tv_budget_progress"
         android:layout_width="wrap_content"
@@ -159,7 +160,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/budgetProgressBar" />
 
-    <!-- Optional: RecyclerView to show previous goals -->
+    <!-- Previous Goals -->
     <TextView
         android:id="@+id/tv_previous_goals"
         android:layout_width="wrap_content"
@@ -172,35 +173,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider" />
 
-    <!-- Bottom Navigation -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_budget_history"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_previous_goals"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav_menu" />
-
-    <ProgressBar
-        android:id="@+id/progressBar3"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="350dp"
-        android:layout_height="110dp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="387dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
