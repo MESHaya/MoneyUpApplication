@@ -1,6 +1,6 @@
 package com.example.firebase_test_application
 
-import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
@@ -10,6 +10,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import java.io.File
+import java.io.FileOutputStream
 
 class BudgetActivity : AppCompatActivity() {
 
@@ -17,6 +20,7 @@ class BudgetActivity : AppCompatActivity() {
     private lateinit var etMinBudget: EditText
     private lateinit var etMaxBudget: EditText
     private lateinit var btnSaveBudget: Button
+    private lateinit var btnExportExcel: Button
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
@@ -28,14 +32,17 @@ class BudgetActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_budget)
 
+        // Initialize Views
         etBudgetName = findViewById(R.id.et_budget_name)
         etMinBudget = findViewById(R.id.et_min_budget)
         etMaxBudget = findViewById(R.id.et_max_budget)
         btnSaveBudget = findViewById(R.id.btn_save_budget)
+        btnExportExcel = findViewById(R.id.btn_export_excel)
 
         budgetProgressBar = findViewById(R.id.budgetProgressBar)
         tvProgressPercent = findViewById(R.id.tv_progress_percent)
 
+        // Firebase setup
         database = FirebaseDatabase.getInstance().getReference("budget")
         auth = FirebaseAuth.getInstance()
 
@@ -43,7 +50,19 @@ class BudgetActivity : AppCompatActivity() {
             saveBudget()
         }
 
-        // Example call to test the progress bar (replace 1200.0 with actual spending from DB later)
+        btnExportExcel.setOnClickListener {
+            val goal = etBudgetName.text.toString()
+            val min = etMinBudget.text.toString()
+            val max = etMaxBudget.text.toString()
+
+            if (goal.isNotEmpty() && min.isNotEmpty() && max.isNotEmpty()) {
+                exportToExcel(this, goal, min, max)
+            } else {
+                Toast.makeText(this, "Please fill in all fields before exporting", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Set a sample progress (replace this with real data later)
         setBudgetProgress(currentSpending = 1200.0, min = 1000.0, max = 3000.0)
 
         setupBottomNav()
@@ -67,11 +86,7 @@ class BudgetActivity : AppCompatActivity() {
         }
 
         if (minAmount > maxAmount) {
-            Toast.makeText(
-                this,
-                "Minimum budget cannot be greater than maximum budget",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, "Minimum budget cannot be greater than maximum budget", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -116,26 +131,56 @@ class BudgetActivity : AppCompatActivity() {
                     startActivity(Intent(this, AllExpensesActivity::class.java))
                     true
                 }
-
                 R.id.nav_home -> {
                     startActivity(Intent(this, HomepageActivity::class.java))
                     true
                 }
-
                 R.id.nav_profile -> {
                     startActivity(Intent(this, ProfileActivity::class.java))
                     true
                 }
-
                 R.id.nav_settings -> {
                     startActivity(Intent(this, SettingActivity::class.java))
                     true
                 }
-
                 else -> false
             }
         }
 
         bottomNav.selectedItemId = R.id.nav_budget
+    }
+
+    // Function to create and save an Excel file
+    fun exportToExcel(context: Context, goal: String, min: String, max: String) {
+        val workbook = XSSFWorkbook()
+        val sheet = workbook.createSheet("Budget")
+
+        // Header
+        val header = sheet.createRow(0)
+        header.createCell(0).setCellValue("Goal")
+        header.createCell(1).setCellValue("Min Budget")
+        header.createCell(2).setCellValue("Max Budget")
+
+        // Data row
+        val row = sheet.createRow(1)
+        row.createCell(0).setCellValue(goal)
+        row.createCell(1).setCellValue(min)
+        row.createCell(2).setCellValue(max)
+
+        // File path
+        val fileName = "BudgetData.xlsx"
+        val filePath = File(context.getExternalFilesDir(null), fileName)
+
+        try {
+            val outputStream = FileOutputStream(filePath)
+            workbook.write(outputStream)
+            outputStream.close()
+            workbook.close()
+
+            Toast.makeText(context, "Excel saved: ${filePath.absolutePath}", Toast.LENGTH_LONG).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(context, "Failed to save Excel", Toast.LENGTH_SHORT).show()
+        }
     }
 }

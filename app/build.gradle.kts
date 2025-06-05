@@ -44,6 +44,9 @@ android {
 
 dependencies {
 
+    implementation ("org.apache.poi:poi:5.2.2")
+    implementation ("org.apache.poi:poi-ooxml:5.2.2")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
