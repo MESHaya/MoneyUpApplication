@@ -20,7 +20,7 @@ class SignUpActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Optional: makes app content extend into system bars
+        enableEdgeToEdge()
         setContentView(R.layout.activity_sign_yp)
         // Get references to UI elements
         val nameInput = findViewById<EditText>(R.id.name_edit)
