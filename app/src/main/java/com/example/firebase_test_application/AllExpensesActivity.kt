@@ -49,8 +49,7 @@ class AllExpensesActivity : AppCompatActivity() {
         setupButtons()
         setupBottomNavigation()
 
-        //loadExpenses()
-        //loadCategoryTotals()
+
     }
 
     private fun setupRecyclerView() {
@@ -98,7 +97,7 @@ class AllExpensesActivity : AppCompatActivity() {
                     }
                 }
 
-                // Assuming you have an adapter:
+
                 expenseAdapter.submitList(expensesList)
             }
 
@@ -111,40 +110,36 @@ class AllExpensesActivity : AppCompatActivity() {
 
 
         private fun loadCategoryTotals() {
-            val uid = auth.currentUser?.uid ?: return
+            val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+            val expensesRef = FirebaseDatabase.getInstance().getReference("expenses")
 
-            lifecycleScope.launch {
-                val categoryMap = mutableMapOf<String, Double>()
-                val expensesRef = dbRef.child("expenses").child(uid)
-                expensesRef.get().addOnSuccessListener { snapshot ->
-                    Log.d(
-                        "AllExpensesActivity",
-                        "Category totals snapshot children count: ${snapshot.childrenCount}"
-                    )
-                    for (child in snapshot.children) {
-                        val expense = child.getValue(Expense::class.java)
-                        Log.d("AllExpensesActivity", "Expense for category totals: $expense")
-                        if (expense != null) {
-                            categoryMap[expense.category] =
-                                categoryMap.getOrDefault(expense.category, 0.0) + expense.amount
+            expensesRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val categoryTotals = mutableMapOf<String, Double>()  //use a map to store totals per category
+
+
+                    for (expenseSnap in snapshot.children) {
+                        val expense = expenseSnap.getValue(Expense::class.java)
+                        if (expense != null && expense.user_id == uid) {
+                            val category = expense.category
+                            val amount = expense.amount
+                            categoryTotals[category] = categoryTotals.getOrDefault(category, 0.0) + amount
                         }
                     }
-                    val categoryTotals = categoryMap.map { CategoryNameTotal(it.key, it.value) }
-                    categoryTotalsAdapter.setData(categoryTotals)
-                }.addOnFailureListener {
-                    Toast.makeText(
-                        this@AllExpensesActivity,
-                        "Failed to load category totals",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    Log.e("AllExpensesActivity", "Failed to load categories", it)
+
+                   val categoryTotalList = categoryTotals.map{
+                       CategoryNameTotal(it.key,it.value)
+                   }
+                    categoryTotalsAdapter.setData(categoryTotalList)
                 }
 
-            }
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("CategoryTotals", "Database read failed: ${error.message}")
+                }
+            })
+
         }
-
-
-        private fun openDateRangePicker() {
+            private fun openDateRangePicker() {
             val calendar = Calendar.getInstance()
             DatePickerDialog(
                 this,
