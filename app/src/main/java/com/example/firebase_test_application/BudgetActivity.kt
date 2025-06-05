@@ -3,22 +3,15 @@ package com.example.firebase_test_application
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.widget.*
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import com.google.firebase.auth.FirebaseAuth
-
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-
 class BudgetActivity : AppCompatActivity() {
-
 
     private lateinit var etBudgetName: EditText
     private lateinit var etMinBudget: EditText
@@ -26,6 +19,9 @@ class BudgetActivity : AppCompatActivity() {
     private lateinit var btnSaveBudget: Button
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
+
+    private lateinit var budgetProgressBar: ProgressBar
+    private lateinit var tvProgressPercent: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,21 +33,33 @@ class BudgetActivity : AppCompatActivity() {
         etMaxBudget = findViewById(R.id.et_max_budget)
         btnSaveBudget = findViewById(R.id.btn_save_budget)
 
-        database = FirebaseDatabase.getInstance().getReference("budget")
+        budgetProgressBar = findViewById(R.id.budgetProgressBar)
+        tvProgressPercent = findViewById(R.id.tv_progress_percent)
 
+        database = FirebaseDatabase.getInstance().getReference("budget")
+        auth = FirebaseAuth.getInstance()
 
         btnSaveBudget.setOnClickListener {
             saveBudget()
         }
 
+        // Example call to test the progress bar (replace 1200.0 with actual spending from DB later)
+        setBudgetProgress(currentSpending = 1200.0, min = 1000.0, max = 3000.0)
+
         setupBottomNav()
     }
+
+    private fun setBudgetProgress(currentSpending: Double, min: Double, max: Double) {
+        val clampedSpending = currentSpending.coerceIn(min, max)
+        val progress = ((clampedSpending - min) / (max - min) * 100).toInt()
+        budgetProgressBar.progress = progress
+        tvProgressPercent.text = "$progress% used"
+    }
+
     private fun saveBudget() {
         val monthlyBudgetName = etBudgetName.text.toString()
         val minAmount = etMinBudget.text.toString().toDoubleOrNull()
         val maxAmount = etMaxBudget.text.toString().toDoubleOrNull()
-
-
 
         if (monthlyBudgetName.isEmpty() || minAmount == null || maxAmount == null) {
             Toast.makeText(this, "Please fill in all fields correctly", Toast.LENGTH_SHORT).show()
@@ -67,18 +75,16 @@ class BudgetActivity : AppCompatActivity() {
             return
         }
 
-        // Generate unique budget ID
         val budgetId = database.push().key ?: return
+        val userId = auth.currentUser?.uid ?: "default_user"
 
-        // Assume default user or get from FirebaseAuth
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "default_user"
-
-        // Get current month
         val calendar = java.util.Calendar.getInstance()
-        val month = calendar.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, java.util.Locale.getDefault()) ?: "Unknown"
+        val month = calendar.getDisplayName(
+            java.util.Calendar.MONTH,
+            java.util.Calendar.LONG,
+            java.util.Locale.getDefault()
+        ) ?: "Unknown"
 
-
-        // Calculate total
         val total = (minAmount + maxAmount).toInt()
 
         val budget = Budget(
@@ -100,37 +106,36 @@ class BudgetActivity : AppCompatActivity() {
             }
     }
 
-      private  fun setupBottomNav() {
-            val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+    private fun setupBottomNav() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
-            bottomNav.setOnItemSelectedListener {
-                when (it.itemId) {
-                    R.id.nav_budget -> true
-                    R.id.nav_expenses -> {
-                        startActivity(Intent(this, AllExpensesActivity::class.java))
-                        true
-                    }
-
-                    R.id.nav_home -> {
-                        startActivity(Intent(this, HomepageActivity::class.java))
-                        true
-                    }
-
-                    R.id.nav_profile -> {
-                        startActivity(Intent(this, ProfileActivity::class.java))
-                        true
-                    }
-
-                    R.id.nav_settings -> {
-                        startActivity(Intent(this, SettingActivity::class.java))
-                        true
-                    }
-
-                    else -> false
+        bottomNav.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.nav_budget -> true
+                R.id.nav_expenses -> {
+                    startActivity(Intent(this, AllExpensesActivity::class.java))
+                    true
                 }
+
+                R.id.nav_home -> {
+                    startActivity(Intent(this, HomepageActivity::class.java))
+                    true
+                }
+
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    true
+                }
+
+                R.id.nav_settings -> {
+                    startActivity(Intent(this, SettingActivity::class.java))
+                    true
+                }
+
+                else -> false
             }
-
-            bottomNav.selectedItemId = R.id.nav_budget
         }
-    }
 
+        bottomNav.selectedItemId = R.id.nav_budget
+    }
+}
