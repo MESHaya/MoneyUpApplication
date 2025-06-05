@@ -142,6 +142,7 @@
         android:backgroundTint="@android:color/darker_gray"
         android:max="100"
         android:progress="0"
+        android:progressDrawable="@drawable/custom_progress_drawable"
         android:progressTint="@color/dark_green"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
