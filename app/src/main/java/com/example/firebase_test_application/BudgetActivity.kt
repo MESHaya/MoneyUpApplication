@@ -1,18 +1,19 @@
 package com.example.firebase_test_application
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.*
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.enableEdgeToEdge
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import java.util.*
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileOutputStream
+import android.content.Context
 
 class BudgetActivity : AppCompatActivity() {
 
@@ -20,35 +21,31 @@ class BudgetActivity : AppCompatActivity() {
     private lateinit var etMinBudget: EditText
     private lateinit var etMaxBudget: EditText
     private lateinit var btnSaveBudget: Button
-    private lateinit var btnExportExcel: Button
-    private lateinit var database: DatabaseReference
-    private lateinit var auth: FirebaseAuth
-
     private lateinit var budgetProgressBar: ProgressBar
     private lateinit var tvProgressPercent: TextView
+    private lateinit var btnExportExcel: Button
+
+    private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_budget)
 
-        // Initialize Views
+        // Initialize UI components
         etBudgetName = findViewById(R.id.et_budget_name)
         etMinBudget = findViewById(R.id.et_min_budget)
         etMaxBudget = findViewById(R.id.et_max_budget)
         btnSaveBudget = findViewById(R.id.btn_save_budget)
         btnExportExcel = findViewById(R.id.btn_export_excel)
-
         budgetProgressBar = findViewById(R.id.budgetProgressBar)
         tvProgressPercent = findViewById(R.id.tv_progress_percent)
 
-        // Firebase setup
+        // Initialize Firebase
         database = FirebaseDatabase.getInstance().getReference("budget")
         auth = FirebaseAuth.getInstance()
 
-        btnSaveBudget.setOnClickListener {
-            saveBudget()
-        }
 
         btnExportExcel.setOnClickListener {
             val goal = etBudgetName.text.toString()
@@ -62,17 +59,16 @@ class BudgetActivity : AppCompatActivity() {
             }
         }
 
-        // Set a sample progress (replace this with real data later)
+        // Example call to test the progress bar
         setBudgetProgress(currentSpending = 1200.0, min = 1000.0, max = 3000.0)
 
-        setupBottomNav()
-    }
+        // Save budget button click listener
+        btnSaveBudget.setOnClickListener {
+            saveBudget()
+        }
 
-    private fun setBudgetProgress(currentSpending: Double, min: Double, max: Double) {
-        val clampedSpending = currentSpending.coerceIn(min, max)
-        val progress = ((clampedSpending - min) / (max - min) * 100).toInt()
-        budgetProgressBar.progress = progress
-        tvProgressPercent.text = "$progress% used"
+        // Set up bottom navigation
+        setupBottomNav()
     }
 
     private fun saveBudget() {
@@ -80,6 +76,7 @@ class BudgetActivity : AppCompatActivity() {
         val minAmount = etMinBudget.text.toString().toDoubleOrNull()
         val maxAmount = etMaxBudget.text.toString().toDoubleOrNull()
 
+        // Validation
         if (monthlyBudgetName.isEmpty() || minAmount == null || maxAmount == null) {
             Toast.makeText(this, "Please fill in all fields correctly", Toast.LENGTH_SHORT).show()
             return
@@ -91,26 +88,25 @@ class BudgetActivity : AppCompatActivity() {
         }
 
         val budgetId = database.push().key ?: return
-        val userId = auth.currentUser?.uid ?: "default_user"
+        val uid = auth.currentUser?.uid
+        if (uid == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        val calendar = java.util.Calendar.getInstance()
-        val month = calendar.getDisplayName(
-            java.util.Calendar.MONTH,
-            java.util.Calendar.LONG,
-            java.util.Locale.getDefault()
-        ) ?: "Unknown"
-
+        val month = Calendar.getInstance().getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) ?: "Unknown"
         val total = (minAmount + maxAmount).toInt()
 
         val budget = Budget(
             budget_id = budgetId,
-            user_id = userId,
+            user_id = uid,
             month = month,
             total_budget = total,
             min_amount = minAmount,
             max_amount = maxAmount
         )
 
+        // Save to Firebase
         database.child(budgetId).setValue(budget)
             .addOnSuccessListener {
                 Toast.makeText(this, "Budget saved successfully", Toast.LENGTH_SHORT).show()
@@ -119,6 +115,13 @@ class BudgetActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Failed to save budget: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun setBudgetProgress(currentSpending: Double, min: Double, max: Double) {
+        val clampedSpending = currentSpending.coerceIn(min, max)
+        val progress = ((clampedSpending - min) / (max - min) * 100).toInt()
+        budgetProgressBar.progress = progress
+        tvProgressPercent.text = "$progress% used"
     }
 
     private fun setupBottomNav() {
@@ -139,7 +142,7 @@ class BudgetActivity : AppCompatActivity() {
                     startActivity(Intent(this, ProfileActivity::class.java))
                     true
                 }
-                R.id.nav_settings -> {
+                R.id.nav_rewards -> {
                     startActivity(Intent(this, SettingActivity::class.java))
                     true
                 }
@@ -150,7 +153,7 @@ class BudgetActivity : AppCompatActivity() {
         bottomNav.selectedItemId = R.id.nav_budget
     }
 
-    // Function to create and save an Excel file
+    // Function to create and save an Excel fileAdd commentMore actions
     fun exportToExcel(context: Context, goal: String, min: String, max: String) {
         val workbook = XSSFWorkbook()
         val sheet = workbook.createSheet("Budget")
@@ -184,3 +187,4 @@ class BudgetActivity : AppCompatActivity() {
         }
     }
 }
+

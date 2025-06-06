@@ -106,8 +106,8 @@ class HomepageActivity : AppCompatActivity() {
                     startActivityWithAnimation(ProfileActivity::class.java)
                     true
                 }
-                R.id.nav_settings -> {
-                    startActivityWithAnimation(SettingActivity::class.java)
+                R.id.nav_rewards -> {
+                    startActivityWithAnimation(RewardsActivity::class.java)
                     true
                 }
                 else -> false

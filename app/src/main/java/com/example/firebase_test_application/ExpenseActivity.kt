@@ -6,6 +6,7 @@ import android.app.TimePickerDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -16,8 +17,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import nl.dionsegijn.konfetti.xml.KonfettiView
 import java.io.File
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ExpenseActivity : AppCompatActivity() {
 
@@ -41,16 +47,21 @@ class ExpenseActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_expense)
 
-
         database = FirebaseDatabase.getInstance().getReference("expenses")
+        auth = FirebaseAuth.getInstance()
 
         previewView = findViewById(R.id.preview_view)
         if (allPermissionsGranted()) {
             startCamera()
         } else {
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+            ActivityCompat.requestPermissions(
+                this,
+                REQUIRED_PERMISSIONS,
+                REQUEST_CODE_PERMISSIONS
+            )
         }
 
+        val konfettiView = findViewById<KonfettiView>(R.id.konfettiView)
         val categorySpinner = findViewById<Spinner>(R.id.spinner_category)
         val categoryNames = mutableListOf<String>()
 
@@ -58,7 +69,8 @@ class ExpenseActivity : AppCompatActivity() {
         categoriesRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (categorySnapshot in snapshot.children) {
-                    val categoryName = categorySnapshot.child("category_name").getValue(String::class.java)
+                    val categoryName =
+                        categorySnapshot.child("category_name").getValue(String::class.java)
                     categoryName?.let { categoryNames.add(it) }
                 }
 
@@ -72,10 +84,13 @@ class ExpenseActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@ExpenseActivity, "Failed to load categories", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@ExpenseActivity,
+                    "Failed to load categories",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
-
 
         val backButton = findViewById<ImageButton>(R.id.back_button)
         val uploadButton = findViewById<Button>(R.id.upload_photo_button)
@@ -118,14 +133,11 @@ class ExpenseActivity : AppCompatActivity() {
             }
 
             val expenseId = database.push().key ?: UUID.randomUUID().toString()
-
-
-            val uid = FirebaseAuth.getInstance().currentUser?.uid
+            val uid = auth.currentUser?.uid
             if (uid == null) {
                 Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
 
             val expense = Expense(
                 expenseId = expenseId,
@@ -143,10 +155,31 @@ class ExpenseActivity : AppCompatActivity() {
             database.child(expenseId).setValue(expense)
                 .addOnSuccessListener {
                     Toast.makeText(this, "Expense saved successfully", Toast.LENGTH_SHORT).show()
-                    finish()
+
+                    val party = Party(
+                        speed = 10f,
+                        maxSpeed = 30f,
+                        damping = 0.9f,
+                        spread = 360,
+                        colors = listOf(0xfce18a, 0xff726d, 0xf4306d, 0xb48def),
+                        emitter = Emitter(duration = 2, TimeUnit.SECONDS).perSecond(50),
+                        position = Position.Relative(0.5, 0.3)
+                    )
+
+                    konfettiView.bringToFront()
+                    konfettiView.invalidate()
+                    konfettiView.start(party)
+
+                    Handler(mainLooper).postDelayed({
+                        finish()
+                    }, 5500)
                 }
                 .addOnFailureListener {
-                    Toast.makeText(this, "Failed to save expense: ${it.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Failed to save expense: ${it.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
         }
     }
@@ -154,11 +187,13 @@ class ExpenseActivity : AppCompatActivity() {
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val cameraProvider = cameraProviderFuture.get()
             val preview = Preview.Builder().build().also {
                 it.setSurfaceProvider(previewView.surfaceProvider)
             }
+
             imageCapture = ImageCapture.Builder().build()
+
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
         }, ContextCompat.getMainExecutor(this))
@@ -177,7 +212,11 @@ class ExpenseActivity : AppCompatActivity() {
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    Toast.makeText(this@ExpenseActivity, "Photo capture failed: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@ExpenseActivity,
+                        "Photo capture failed: ${exception.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
     }
@@ -186,18 +225,20 @@ class ExpenseActivity : AppCompatActivity() {
         ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
     }
 
-
-    //correct date picker to save date as sting to recognize in graph
     private fun showDatePickerDialog(dateInput: EditText) {
         val calendar = Calendar.getInstance()
         val datePickerDialog = DatePickerDialog(
             this,
             { _, year, month, dayOfMonth ->
-                val monthName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
                 calendar.set(Calendar.YEAR, year)
                 calendar.set(Calendar.MONTH, month)
                 calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                val formattedDate = String.format("%02d %s %04d", dayOfMonth, calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()), year)
+                val formattedDate = String.format(
+                    "%02d %s %04d",
+                    dayOfMonth,
+                    calendar.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()),
+                    year
+                )
                 dateInput.setText(formattedDate)
             },
             calendar.get(Calendar.YEAR),
@@ -209,9 +250,15 @@ class ExpenseActivity : AppCompatActivity() {
 
     private fun showTimePickerDialog(timeInput: EditText) {
         val calendar = Calendar.getInstance()
-        val timePickerDialog = TimePickerDialog(this, { _, hour, minute ->
-            timeInput.setText(String.format("%02d:%02d", hour, minute))
-        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true)
+        val timePickerDialog = TimePickerDialog(
+            this,
+            { _, hour, minute ->
+                timeInput.setText(String.format("%02d:%02d", hour, minute))
+            },
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            true
+        )
         timePickerDialog.show()
     }
 

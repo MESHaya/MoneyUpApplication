@@ -207,9 +207,9 @@ class AllExpensesActivity : AppCompatActivity() {
                         true
                     }
 
-                    R.id.nav_settings -> {
+                    R.id.nav_rewards -> {
                         startActivity(
-                            Intent(this, SettingActivity::class.java),
+                            Intent(this, RewardsActivity::class.java),
                             ActivityOptions.makeCustomAnimation(this, 0, 0).toBundle()
                         )
                         true

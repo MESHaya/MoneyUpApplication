@@ -102,8 +102,8 @@ class ProfileActivity : AppCompatActivity() {
                     true
                 }
 
-                R.id.nav_settings -> {
-                    val intent = Intent(this@ProfileActivity, SettingActivity::class.java)
+                R.id.nav_rewards -> {
+                    val intent = Intent(this@ProfileActivity, RewardsActivity::class.java)
                     val options =
                         ActivityOptions.makeCustomAnimation(this@ProfileActivity, 0, 0)
                     startActivity(intent, options.toBundle())

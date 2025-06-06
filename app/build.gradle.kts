@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.firebase_test_application"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -76,5 +76,9 @@ dependencies {
 
     //Graph
     implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    //confetti
+    implementation("nl.dionsegijn:konfetti-compose:2.0.2")
+    implementation ("nl.dionsegijn:konfetti-xml:2.0.2")
 
 }
