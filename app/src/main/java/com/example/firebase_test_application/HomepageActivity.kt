@@ -2,13 +2,16 @@ package com.example.firebase_test_application
 
 import android.app.ActivityOptions
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Spinner
+import android.widget.VideoView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.calculatoractivity.CalculatorActivity
@@ -23,6 +26,12 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import android.os.Handler
+import android.util.Log
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
 
 class HomepageActivity : AppCompatActivity() {
 
@@ -46,6 +55,7 @@ class HomepageActivity : AppCompatActivity() {
         // Firebase instances
         auth = FirebaseAuth.getInstance()
         dbRef = FirebaseDatabase.getInstance().reference
+
 
         // Expense button
         add_expenseBTN.setOnClickListener {
@@ -124,50 +134,71 @@ class HomepageActivity : AppCompatActivity() {
     }
 
     private fun retrieveDataForMonth(month: String) {
+        val months = listOf(
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        )
+        val selectedMonthIndex = months.indexOf(month) + 1
+
         val categoryTotals = HashMap<String, Double>()
-        var minGoal = 0.0
-        var maxGoal = 0.0
+        Log.d("CategoryTotals", categoryTotals.toString())
+
 
         val uid = auth.currentUser?.uid ?: return
-        val budgetRef = dbRef.child("budget")
+        Log.d("UID_CHECK", "Querying for UID: $uid")
 
-        budgetRef.orderByChild("user_id").equalTo(uid)
+
+
+        val expensesRef = dbRef.child("expenses")
+        expensesRef.orderByChild("user_id").equalTo(uid)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    for (budgetSnap in snapshot.children) {
-                        val budget = budgetSnap.getValue(Budget::class.java)
-                        if (budget != null && budget.month == month) {
-                            minGoal = budget.min_amount
-                            maxGoal = budget.max_amount
-                            break
+                    Log.d("FIREBASE", "onDataChange triggered")
+
+
+
+                    for (expenseSnap in snapshot.children) {
+                        Log.d("FIREBASE", "ForLoop triggered")
+
+
+                        val expense = expenseSnap.getValue(Expense::class.java)
+                        Log.d("DEBUG", "Expense snapshot count: ${snapshot.childrenCount}")
+                        Log.d("DEBUG", "Expense: $expenseSnap")
+                        Log.d("DEBUG", "Expense ${expenseSnap.key} skipped")
+                        if (expense != null) {
+                            try {
+                                //Parse the expense date
+                                val date = LocalDate.parse(
+                                    expense.date,
+                                    DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.ENGLISH)
+
+                                )
+                                if (date.monthValue == selectedMonthIndex) {
+                                    categoryTotals[expense.category] =
+                                        categoryTotals.getOrDefault(
+                                            expense.category,
+                                            0.0
+                                        ) + expense.amount
+                                }
+                            } catch (e: Exception) {
+                                Log.e("DateParseError", "Could not parse date: ${expense.date}", e)
+
+                            }
                         }
                     }
-
-                    val expensesRef = dbRef.child("expense")
-                    expensesRef.orderByChild("user_id").equalTo(uid)
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(snapshot: DataSnapshot) {
-                                for (expenseSnap in snapshot.children) {
-                                    val expense = expenseSnap.getValue(Expense::class.java)
-                                    if (expense != null && expense.date.contains(month, true)) {
-                                        categoryTotals[expense.category] =
-                                            categoryTotals.getOrDefault(expense.category, 0.0) + expense.amount
-                                    }
-                                }
-                                showLineGraph(categoryTotals, minGoal, maxGoal)
-                            }
-
-                            override fun onCancelled(error: DatabaseError) {}
-                        })
+                    showLineGraph(categoryTotals)
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
             })
     }
 
-    private fun showLineGraph(categoryTotals: Map<String, Double>, minGoal: Double, maxGoal: Double) {
+
+    private fun showLineGraph(categoryTotals: Map<String, Double>) {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
+
+
 
         categoryTotals.entries.forEachIndexed { index, entry ->
             entries.add(Entry(index.toFloat(), entry.value.toFloat()))
@@ -193,8 +224,7 @@ class HomepageActivity : AppCompatActivity() {
 
         val leftAxis = lineChart.axisLeft
         leftAxis.removeAllLimitLines()
-        leftAxis.addLimitLine(LimitLine(minGoal.toFloat(), "Min Goal"))
-        leftAxis.addLimitLine(LimitLine(maxGoal.toFloat(), "Max Goal"))
+
 
         lineChart.axisRight.isEnabled = false
         lineChart.invalidate()
