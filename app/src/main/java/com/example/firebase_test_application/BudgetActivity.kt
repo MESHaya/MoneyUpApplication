@@ -14,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import java.io.File
 import java.io.FileOutputStream
 import android.content.Context
+import android.os.Environment
 
 class BudgetActivity : AppCompatActivity() {
 
@@ -30,7 +31,6 @@ class BudgetActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_budget)
 
         // Initialize UI components
@@ -100,6 +100,7 @@ class BudgetActivity : AppCompatActivity() {
         val budget = Budget(
             budget_id = budgetId,
             user_id = uid,
+            budgetName = monthlyBudgetName,
             month = month,
             total_budget = total,
             min_amount = minAmount,
@@ -172,7 +173,7 @@ class BudgetActivity : AppCompatActivity() {
 
         // File path
         val fileName = "BudgetData.xlsx"
-        val filePath = File(context.getExternalFilesDir(null), fileName)
+        val filePath = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
 
         try {
             val outputStream = FileOutputStream(filePath)
