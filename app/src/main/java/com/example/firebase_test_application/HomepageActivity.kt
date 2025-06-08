@@ -148,7 +148,6 @@ class HomepageActivity : AppCompatActivity() {
         Log.d("UID_CHECK", "Querying for UID: $uid")
 
 
-
         val expensesRef = dbRef.child("expenses")
         expensesRef.orderByChild("user_id").equalTo(uid)
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -186,15 +185,59 @@ class HomepageActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    showLineGraph(categoryTotals)
+                    val budgetsRef = dbRef.child("budget")
+                    budgetsRef.orderByChild("user_id").equalTo(uid)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(budgetSnapshot: DataSnapshot) {
+
+                                Log.e("DEBUG", "Budget - OnDataChange triggered")
+                                var min_amount: Float? = null
+                                var max_amount: Float? = null
+
+                                for (budgetSnap in budgetSnapshot.children) {
+                                    val budgetMonth =
+                                        budgetSnap.child("month").getValue(String::class.java)
+                                    if (budgetMonth.equals(month, ignoreCase = true)) {
+                                        min_amount = budgetSnap.child("min_amount")
+                                            .getValue(Double::class.java)?.toFloat()
+                                        Log.d(
+                                            "DEBUG",
+                                            "Budgetmin snapshot count: ${snapshot.childrenCount}"
+                                        )
+                                        Log.d("DEBUG", "Budget: $budgetSnap")
+
+
+                                        max_amount = budgetSnap.child("max_amount")
+                                            .getValue(Double::class.java)?.toFloat()
+                                        Log.d(
+                                            "DEBUG",
+                                            "BudgetMax snapshot count: ${snapshot.childrenCount}"
+                                        )
+                                        Log.d("DEBUG", "Budget: $budgetSnap")
+                                        break
+                                    }
+                                }
+
+                                showLineGraph(categoryTotals, min_amount, max_amount)
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                Log.e("BUDGET_FETCH", "Error fetching budget: ${error.message}")
+                                showLineGraph(categoryTotals, null, null) // Fallback
+                            }
+                        })
+
+
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
             })
+
     }
 
 
-    private fun showLineGraph(categoryTotals: Map<String, Double>) {
+
+    private fun showLineGraph(categoryTotals: Map<String, Double>,min_amount: Float?, max_amount: Float?) {
         val entries = ArrayList<Entry>()
         val labels = ArrayList<String>()
 
@@ -222,11 +265,44 @@ class HomepageActivity : AppCompatActivity() {
             }
         }
 
+
+        lineChart.axisRight.isEnabled = false
+
         val leftAxis = lineChart.axisLeft
         leftAxis.removeAllLimitLines()
 
+// Set Y-axis min/max range to ensure budget lines are visible
+        val allValues = categoryTotals.values.map { it.toFloat() }.toMutableList()
 
-        lineChart.axisRight.isEnabled = false
+        min_amount?.let { allValues.add(it) }
+        max_amount?.let { allValues.add(it) }
+
+        if (allValues.isNotEmpty()) {
+            val yMin = (allValues.minOrNull() ?: 0f) * 0.9f
+            val yMax = (allValues.maxOrNull() ?: 0f) * 1.1f
+            leftAxis.axisMinimum = yMin
+            leftAxis.axisMaximum = yMax
+
+        }
+
+// Now add the lines
+        min_amount?.let {
+            val minLine = LimitLine(it, "Min Budget")
+            minLine.lineWidth = 2f
+            minLine.lineColor = ColorTemplate.COLORFUL_COLORS[0]
+            minLine.textColor = ColorTemplate.COLORFUL_COLORS[0]
+            leftAxis.addLimitLine(minLine)
+        }
+
+        max_amount?.let {
+            val maxLine = LimitLine(it, "Max Budget")
+            maxLine.lineWidth = 2f
+            maxLine.lineColor = ColorTemplate.COLORFUL_COLORS[1]
+            maxLine.textColor = ColorTemplate.COLORFUL_COLORS[1]
+            leftAxis.addLimitLine(maxLine)
+        }
+
+
         lineChart.invalidate()
     }
 }

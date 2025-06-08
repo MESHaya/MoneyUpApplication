@@ -154,6 +154,8 @@ class ExpenseActivity : AppCompatActivity() {
 
             database.child(expenseId).setValue(expense)
                 .addOnSuccessListener {
+                    updateCurrentSpending(uid, amountValue)
+
                     Toast.makeText(this, "Expense saved successfully", Toast.LENGTH_SHORT).show()
 
                     val party = Party(
@@ -184,6 +186,23 @@ class ExpenseActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateCurrentSpending(userId: String, newAmount: Double) {
+        val userTotalRef = FirebaseDatabase.getInstance().getReference("user_totals").child(userId)
+        userTotalRef.child("currentSpending").runTransaction(object : Transaction.Handler {
+            override fun doTransaction(mutableData: MutableData): Transaction.Result {
+                val currentSpending = mutableData.getValue(Double::class.java) ?: 0.0
+                mutableData.value = currentSpending + newAmount
+                return Transaction.success(mutableData)
+            }
+
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                if (error != null) {
+                    Toast.makeText(applicationContext, "Failed to update total: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
     private fun startCamera() {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
         cameraProviderFuture.addListener({
@@ -193,7 +212,6 @@ class ExpenseActivity : AppCompatActivity() {
             }
 
             imageCapture = ImageCapture.Builder().build()
-
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
             cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
         }, ContextCompat.getMainExecutor(this))

@@ -15,6 +15,9 @@ import java.io.File
 import java.io.FileOutputStream
 import android.content.Context
 import android.os.Environment
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 
 class BudgetActivity : AppCompatActivity() {
 
@@ -60,13 +63,14 @@ class BudgetActivity : AppCompatActivity() {
         }
 
         // Example call to test the progress bar
-        setBudgetProgress(currentSpending = 1200.0, min = 1000.0, max = 3000.0)
+       // setBudgetProgress(currentSpending = 1200.0, min = 2000.0, max = 10000.0)
 
         // Save budget button click listener
         btnSaveBudget.setOnClickListener {
             saveBudget()
         }
 
+        fetchAndUpdateBudgetProgress()
         // Set up bottom navigation
         setupBottomNav()
     }
@@ -104,7 +108,8 @@ class BudgetActivity : AppCompatActivity() {
             month = month,
             total_budget = total,
             min_amount = minAmount,
-            max_amount = maxAmount
+            max_amount = maxAmount,
+            current_spending = 0.0
         )
 
         // Save to Firebase
@@ -124,6 +129,53 @@ class BudgetActivity : AppCompatActivity() {
         budgetProgressBar.progress = progress
         tvProgressPercent.text = "$progress% used"
     }
+
+    private fun fetchAndUpdateBudgetProgress() {
+        val uid = auth.currentUser?.uid ?: return
+
+        // Step 1: Fetch budget
+        database.orderByChild("user_id").equalTo(uid)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(budgetSnapshot: DataSnapshot) {
+                    var latestBudget: Budget? = null
+                    for (child in budgetSnapshot.children) {
+                        val budget = child.getValue(Budget::class.java)
+                        if (budget != null) {
+                            latestBudget = budget
+                            break  // You could change this logic if needed
+                        }
+                    }
+
+                    if (latestBudget != null) {
+                        // Step 2: Fetch currentSpending
+                        val userTotalsRef = FirebaseDatabase.getInstance()
+                            .getReference("user_totals")
+                            .child(uid)
+                            .child("currentSpending")
+
+                        userTotalsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(spendingSnapshot: DataSnapshot) {
+                                val currentSpending = spendingSnapshot.getValue(Double::class.java) ?: 0.0
+                                setBudgetProgress(
+                                    currentSpending = currentSpending,
+                                    min = latestBudget.min_amount,
+                                    max = latestBudget.max_amount
+                                )
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                Toast.makeText(this@BudgetActivity, "Failed to load spending", Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(this@BudgetActivity, "Failed to load budget", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
+
 
     private fun setupBottomNav() {
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_navigation)
