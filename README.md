@@ -6,7 +6,7 @@
 
 ## ✨ Innovative features for POE
 
-- 🔍  **Filter** Allow users to filter transactions by date, category, amount, or payment method for easy tracking and analysis. This feature improves the user experience by making it easier to find specific transactions and understand spending patterns, streamlining financial management.
+- 🔍  **Data Export** Allow users to export their financial data for backup, analysis, or external use. This feature is valuable because it ensures data security and enables users to perform deeper analysis or use the data in other tools, such as tax preparation or financial planning software. The minimum and maximum goals is exported for the user in an excel sheet.
 - 🧮  **Calculator** Providing a built-in calculator to allow users to perform quick calculations for any amounts they have in mind. This feature is useful to make it easy for users to calculate amounts based on arithmetic operations such as divide, multiply, addition, and subtraction
 
 ## 🚀 Features for POE
@@ -54,3 +54,9 @@ If you encounter issues related to Room database migrations (such as missing col
 
 # 🎬 YouTube Link: https://youtu.be/dsMaCm0MtCc
 
+---
+
+# 👥 Group Members:
+- Meshaya Munnhar ST10272710
+- Panashe Mavhunga ST10393030
+- Zoe Heyneke ST10305921
