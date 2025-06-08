@@ -1,11 +1,11 @@
-package data
+package com.example.firebase_test_application
 
 data class Badge(
 
-    val id: String = "",
+    val badge_id: String = "",
     val name: String = "",
     val description: String = "",
-    val iconUrl: String = "", // Optional if you want badge icons
+    val iconUrl: String = "",
     val achieved: Boolean = false,
     val dateAchieved: Long? = null // timestamp
 
