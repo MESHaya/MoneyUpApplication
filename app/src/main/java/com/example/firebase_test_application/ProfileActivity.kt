@@ -55,15 +55,25 @@ class ProfileActivity : AppCompatActivity() {
 
         budgetsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val budgetList = mutableListOf<Budget>()
+                Log.d("DEBUG","OnDataChange triggered")
+                //loop through each child
+                for (budgetSnapshot in snapshot.children) {
+                    Log.d("DEBUG","Loop triggered")
+                    val budgetList = mutableListOf<Budget>()
 
-                for (budgetSnap in snapshot.children){
-                    val budget = budgetSnap.getValue(Budget ::class.java)
-                    if(budget != null && budget.user_id == uid){
-                        budgetList.add(budget)
+
+                    for (budgetSnap in snapshot.children) {
+                        val budget = budgetSnap.getValue(Budget::class.java)
+                        Log.d("DEBUG", "Budget snapshot count: ${snapshot.childrenCount}")
+                        if (budget != null && budget.user_id == uid) {
+                            budgetList.add(budget)
+                        }
                     }
+
+
+
+                    budgetAdapter.submitList(budgetList)
                 }
-                budgetAdapter.submitList(budgetList)
             }
             override fun onCancelled( error: DatabaseError){
                 Log.e("ProfileActivity,","Database read failed: ${error.message}")
