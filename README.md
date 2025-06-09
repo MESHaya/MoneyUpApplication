@@ -52,7 +52,7 @@ If you encounter issues related to Room database migrations (such as missing col
 
 ---
 
-# 🎬 YouTube Link: https://youtu.be/dsMaCm0MtCc
+# 🎬 YouTube Link: [https://youtu.be/dsMaCm0MtCc](https://youtu.be/iyrzqjhYKco)
 
 ---
 
